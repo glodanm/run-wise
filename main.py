@@ -1,3 +1,4 @@
+from asyncio import taskgroups
 import uvicorn
 import logging
 import asyncio
@@ -8,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.container import Container
 from src.core.logger import setup_logging
+from src.modules.authorization import router as auth_router
 
 
 container = Container()
@@ -19,7 +21,10 @@ async def lifespan(app: FastAPI):
     logger = logging.getLogger(__name__)
 
     # wiring modules
-    container.wire(modules=[])
+    container.wire(modules=[
+        "src.modules.authorization.router",
+        "src.modules.authorization.dependencies"
+    ])
 
     from src.core.database import Base
     
@@ -60,6 +65,8 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    app.include_router(auth_router.router, prefix="/api/auth", tags=["auth"])
+
     return app
 
 app = create_app()
@@ -74,4 +81,3 @@ if __name__ == "__main__":
         reload_excludes=["*.pyc", "__pycache__"],
         reload_delay=1.0
     )
-

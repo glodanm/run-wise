@@ -5,9 +5,12 @@ import jwt
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
-from src.core.config import config
+from src.core.config import Configurations
+
 
 logger = logging.getLogger(__name__)
+
+config = Configurations()
 
 SECRET_KEY = config.SECRET_KEY
 REFRESH_SECRET_KEY = config.REFRESH_SECRET_KEY
