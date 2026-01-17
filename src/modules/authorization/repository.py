@@ -26,7 +26,7 @@ class UserRepository:
                 return User(
                     id=str(db_user.id),
                     email=db_user.email,
-                    hashed_password=db_user.password
+                    password=db_user.password
                 )
             return None
 
@@ -37,7 +37,7 @@ class UserRepository:
                 db_user = UserModel(
                     id=uuid.UUID(user.id),
                     email=user.email,
-                    password=user.hashed_password
+                    password=user.password
                 )
                 session.add(db_user)
                 await session.commit()

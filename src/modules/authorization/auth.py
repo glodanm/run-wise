@@ -3,7 +3,6 @@ import logging
 
 import jwt
 from fastapi import HTTPException
-from fastapi.security import OAuth2PasswordBearer
 
 from src.core.config import Configurations
 
