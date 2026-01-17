@@ -23,19 +23,9 @@ async def lifespan(app: FastAPI):
         "src.modules.authorization.router",
         "src.modules.authorization.dependencies"
     ])
-
-    from src.core.database import Base
     
-    try:
-        db = container.database()
-        logger.info("Database instance created")
-        
-        async with db.engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-            logger.info("Database tables created successfully")
-    except Exception as e:
-        logger.error(f"Failed to initialize database: {e}", exc_info=True)
-        raise
+    db = container.database()
+    logger.info("Database instance created")
 
     yield
 
@@ -53,7 +43,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title="RunWise", lifespan=lifespan)
     
     logger = logging.getLogger("RunWise")
-    logger.debug("Service started")
+
 
     app.add_middleware(
         CORSMiddleware,
