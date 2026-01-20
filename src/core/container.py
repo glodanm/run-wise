@@ -20,16 +20,13 @@ class Container(containers.DeclarativeContainer):
 
     user_repository = providers.Factory(
         UserRepository,
-        database=database
     )
 
     auth_service = providers.Factory(
         AuthService,
-        repository=user_repository
     )
     
     strava_service = providers.Factory(
         StravaService,
         config=config,
-        repository=user_repository
     )

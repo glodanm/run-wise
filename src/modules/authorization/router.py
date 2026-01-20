@@ -13,7 +13,7 @@ from src.modules.authorization.schema import (
     UserResponse,
 )
 from src.modules.authorization.auth import create_access_token, create_refresh_token, verify_refresh_token
-from src.modules.authorization.dependencies import get_current_user
+from src.modules.authorization.dependencies import get_auth_service, get_current_user, get_strava_service
 from src.domain.entities.user import User
 
 
@@ -22,10 +22,9 @@ router = APIRouter()
 
 
 @router.post("/sign-up")
-@inject
 async def sign_up(
     request: UserRegistrationRequest, 
-    auth_service: AuthService = Depends(Provide[Container.auth_service])
+    auth_service: AuthService = Depends(get_auth_service)
 ):
     user = await auth_service.register(email=request.email, password=request.password)
     if not user:
@@ -37,10 +36,9 @@ async def sign_up(
 
 
 @router.post("/sign-in", response_model=Token)
-@inject
 async def sign_in(
     request: OAuth2PasswordRequestForm = Depends(),
-    auth_service: AuthService = Depends(Provide[Container.auth_service])
+    auth_service: AuthService = Depends(get_auth_service)
 ):
     user = await auth_service.login(email=request.username, password=request.password)
     if not user:
@@ -88,30 +86,27 @@ async def get_user_profile(current_user: User = Depends(get_current_user)):
 # Strava OAuth Routes
 
 @router.get("/strava/connect")
-@inject
 async def connect_strava(
     current_user: User = Depends(get_current_user),
-    strava_service: StravaService = Depends(Provide[Container.strava_service])
+    strava_service: StravaService = Depends(get_strava_service)
 ):
     authorization_url = strava_service.generate_authorization_url(current_user.email)
     return {"authorization_url": authorization_url}
 
 
 @router.get("/strava/sign-up")
-@inject
 async def strava_sign_up(
-    strava_service: StravaService = Depends(Provide[Container.strava_service])
+    strava_service: StravaService = Depends(get_strava_service)
 ):
     pass
 
 
 @router.get("/strava/callback")
-@inject
 async def strava_callback(
     code: str,
     state: str,
     scope: str,
-    strava_service: StravaService = Depends(Provide[Container.strava_service])
+    strava_service: StravaService = Depends(get_strava_service)
 ):
     """
     Handle OAuth callback from Strava.
@@ -137,20 +132,18 @@ async def strava_callback(
 
 
 @router.post("/strava/disconnect")
-@inject
 async def disconnect_strava(
     current_user: User = Depends(get_current_user),
-    strava_service: StravaService = Depends(Provide[Container.strava_service])
+    strava_service: StravaService = Depends(get_strava_service)
 ):
     await strava_service.disconnect_strava(current_user)
     return {"message": "Strava disconnected successfully"}
 
 
 @router.get("/strava/profile")
-@inject
 async def get_strava_profile(
     current_user: User = Depends(get_current_user),
-    strava_service: StravaService = Depends(Provide[Container.strava_service])
+    strava_service: StravaService = Depends(get_strava_service)
 ):
     if not current_user.strava_id:
         raise HTTPException(

@@ -20,7 +20,6 @@ async def lifespan(app: FastAPI):
 
     # wiring modules
     container.wire(modules=[
-        "src.modules.authorization.router",
         "src.modules.authorization.dependencies"
     ])
     
@@ -41,9 +40,10 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(title="RunWise", lifespan=lifespan)
+
+    app.container = container
     
     logger = logging.getLogger("RunWise")
-
 
     app.add_middleware(
         CORSMiddleware,
