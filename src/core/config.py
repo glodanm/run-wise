@@ -11,3 +11,8 @@ class Configurations(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
+    
+    # Strava OAuth Configuration
+    STRAVA_CLIENT_ID: str
+    STRAVA_CLIENT_SECRET: str
+    STRAVA_REDIRECT_URI: str

@@ -4,6 +4,7 @@ from dependency_injector import containers, providers
 
 from src.modules.authorization.repository import UserRepository
 from src.modules.authorization.service import AuthService
+from src.modules.authorization.strava_service import StravaService
 
 
 from .config import Configurations
@@ -24,5 +25,11 @@ class Container(containers.DeclarativeContainer):
 
     auth_service = providers.Factory(
         AuthService,
+        repository=user_repository
+    )
+    
+    strava_service = providers.Factory(
+        StravaService,
+        config=config,
         repository=user_repository
     )

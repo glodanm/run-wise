@@ -6,6 +6,7 @@ from dependency_injector.wiring import Provide, inject
 
 from src.core.container import Container
 from src.modules.authorization.service import AuthService
+from src.modules.authorization.strava_service import StravaService
 from src.modules.authorization.schema import (
     Token,
     UserRegistrationRequest,
@@ -77,9 +78,85 @@ async def refresh_token(refresh_token: str):
 
 @router.get("/users/me", response_model=UserResponse)
 async def get_user_profile(current_user: User = Depends(get_current_user)):
-    """Get the current authenticated user's profile"""
     return UserResponse(
         id=current_user.id,
         email=current_user.email,
         created_at=current_user.created_at
     )
+
+
+# Strava OAuth Routes
+
+@router.get("/strava/connect")
+@inject
+async def connect_strava(
+    current_user: User = Depends(get_current_user),
+    strava_service: StravaService = Depends(Provide[Container.strava_service])
+):
+    authorization_url = strava_service.generate_authorization_url(current_user.email)
+    return {"authorization_url": authorization_url}
+
+
+@router.get("/strava/sign-up")
+@inject
+async def strava_sign_up(
+    strava_service: StravaService = Depends(Provide[Container.strava_service])
+):
+    pass
+
+
+@router.get("/strava/callback")
+@inject
+async def strava_callback(
+    code: str,
+    state: str,
+    scope: str,
+    strava_service: StravaService = Depends(Provide[Container.strava_service])
+):
+    """
+    Handle OAuth callback from Strava.
+    Exchanges authorization code for access token and stores credentials.
+    """
+    try:
+        user = await strava_service.handle_callback(code=code, state=state, scope=scope)
+        logger.info(f"Strava connected successfully for user: {user.email}")
+        
+        # In a real application, you might want to redirect to a frontend success page
+        return {
+            "message": "Strava connected successfully",
+            "strava_id": user.strava_id
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in Strava callback: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An error occurred while connecting to Strava"
+        )
+
+
+@router.post("/strava/disconnect")
+@inject
+async def disconnect_strava(
+    current_user: User = Depends(get_current_user),
+    strava_service: StravaService = Depends(Provide[Container.strava_service])
+):
+    await strava_service.disconnect_strava(current_user)
+    return {"message": "Strava disconnected successfully"}
+
+
+@router.get("/strava/profile")
+@inject
+async def get_strava_profile(
+    current_user: User = Depends(get_current_user),
+    strava_service: StravaService = Depends(Provide[Container.strava_service])
+):
+    if not current_user.strava_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Strava not connected. Please connect your Strava account first."
+        )
+    
+    profile = await strava_service.get_athlete_profile(current_user)
+    return profile
