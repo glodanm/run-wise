@@ -2,9 +2,7 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from dependency_injector.wiring import Provide, inject
 
-from src.core.container import Container
 from src.modules.authorization.service import AuthService
 from src.modules.authorization.strava_service import StravaService
 from src.modules.authorization.schema import (

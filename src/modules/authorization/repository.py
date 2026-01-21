@@ -6,7 +6,6 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.database import Database
 from src.domain.entities.user import User
 from src.modules.authorization.models import UserModel
 
