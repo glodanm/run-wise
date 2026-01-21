@@ -36,7 +36,6 @@ async def get_strava_service(
     return service_factory(repository=repository)
 
 
-@inject
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     auth_service: AuthService = Depends(get_auth_service)
