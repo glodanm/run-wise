@@ -16,20 +16,25 @@ class AuthService:
         user = await self.repository.get_by_email(email)
         
         if user is None:
-            logger.info(f"There is no user with email: {email}")
-            return None
-        if not user.check_password(password):
+            logger.warning(f"Login attempt failed: no user with email {email}")
             return None
         
+        if not user.check_password(password):
+            logger.warning(f"Login attempt failed: invalid password for {email}")
+            return None
+        
+        logger.info(f"User {email} logged in successfully")
         return user 
     
     async def register(self, email: str, password: str) -> User | None:
         existing_user = await self.repository.get_by_email(email)
         
         if existing_user:
-            logger.info(f"User with email: {email} already exist")
+            logger.info(f"Registration failed: user with email {email} already exists")
+            return None
         
         user = User.create_with_password(email=email, password=password)
         await self.repository.create(user)
+        logger.info(f"User {email} registered successfully")
         
         return user

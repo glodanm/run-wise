@@ -1,6 +1,5 @@
 import uvicorn
 import logging
-import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -8,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.container import Container
 from src.core.logger import setup_logging
+from src.modules.authorization import router as auth_router
 
 
 container = Container()
@@ -19,20 +19,12 @@ async def lifespan(app: FastAPI):
     logger = logging.getLogger(__name__)
 
     # wiring modules
-    container.wire(modules=[])
-
-    from src.core.database import Base
+    container.wire(modules=[
+        "src.modules.authorization.dependencies"
+    ])
     
-    try:
-        db = container.database()
-        logger.info("Database instance created")
-        
-        async with db.engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-            logger.info("Database tables created successfully")
-    except Exception as e:
-        logger.error(f"Failed to initialize database: {e}", exc_info=True)
-        raise
+    db = container.database()
+    logger.info("Database instance created")
 
     yield
 
@@ -48,9 +40,10 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(title="RunWise", lifespan=lifespan)
+
+    app.container = container
     
     logger = logging.getLogger("RunWise")
-    logger.debug("Service started")
 
     app.add_middleware(
         CORSMiddleware,
@@ -59,6 +52,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    app.include_router(auth_router.router, prefix="/api/auth", tags=["auth"])
 
     return app
 
@@ -74,4 +69,3 @@ if __name__ == "__main__":
         reload_excludes=["*.pyc", "__pycache__"],
         reload_delay=1.0
     )
-

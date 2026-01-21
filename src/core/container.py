@@ -2,6 +2,10 @@ import logging
 
 from dependency_injector import containers, providers
 
+from src.modules.authorization.repository import UserRepository
+from src.modules.authorization.service import AuthService
+from src.modules.authorization.strava_service import StravaService
+
 
 from .config import Configurations
 from .database import Database
@@ -14,4 +18,15 @@ class Container(containers.DeclarativeContainer):
 
     database = providers.Singleton(Database, config=config)
 
+    user_repository = providers.Factory(
+        UserRepository,
+    )
+
+    auth_service = providers.Factory(
+        AuthService,
+    )
     
+    strava_service = providers.Factory(
+        StravaService,
+        config=config,
+    )
