@@ -2,6 +2,8 @@ import logging
 
 from dependency_injector import containers, providers
 
+from src.modules.activity.repository import ActivityRepository
+from src.modules.activity.service import ActivityService
 from src.modules.authorization.repository import UserRepository
 from src.modules.authorization.service import AuthService
 from src.modules.authorization.strava_service import StravaService
@@ -29,4 +31,12 @@ class Container(containers.DeclarativeContainer):
     strava_service = providers.Factory(
         StravaService,
         config=config,
+    )
+
+    activity_repository = providers.Factory(
+        ActivityRepository,
+    )
+
+    activity_service = providers.Factory(
+        ActivityService,
     )

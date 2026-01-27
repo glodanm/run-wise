@@ -261,3 +261,22 @@ class StravaService:
                 )
             
             return response.json()
+    
+    async def get_activities(self, user: User, limit: int = 10) -> list[dict]:
+        access_token = await self.get_valid_access_token(user)
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.STRAVA_API_URL}/athlete/activities",
+                params={"per_page": limit},
+                headers={"Authorization": f"Bearer {access_token}"}
+            )
+            
+            if response.status_code != 200:
+                logger.error(f"Failed to fetch activities: {response.text}")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Failed to fetch activities from Strava"
+                )
+            
+            return response.json()

@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.core.container import Container
 from src.core.logger import setup_logging
 from src.modules.authorization import router as auth_router
+from src.modules.activity import router as activity_router
 
 
 container = Container()
@@ -20,7 +21,8 @@ async def lifespan(app: FastAPI):
 
     # wiring modules
     container.wire(modules=[
-        "src.modules.authorization.dependencies"
+        "src.modules.authorization.dependencies",
+        "src.modules.activity.dependencies",
     ])
     
     db = container.database()
@@ -53,7 +55,8 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    app.include_router(auth_router.router, prefix="/api/auth", tags=["auth"])
+    app.include_router(auth_router.router, prefix="/api/auth", tags=["auth"]),
+    app.include_router(activity_router.router, prefix="/api/activities", tags=["activity"])
 
     return app
 
