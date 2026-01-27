@@ -16,6 +16,7 @@ from src.core.database import Base
 
 # Import all models to register them with Base.metadata
 from src.modules.authorization.models import UserModel
+from src.modules.activity.models import ActivityModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

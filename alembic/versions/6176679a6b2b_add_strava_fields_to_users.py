@@ -1,7 +1,7 @@
 """add_strava_fields_to_users
 
 Revision ID: 6176679a6b2b
-Revises: 0f89be1d960c
+Revises: 260e4e269d41
 Create Date: 2026-01-19 20:57:10.813794
 
 """
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = '6176679a6b2b'
-down_revision: Union[str, Sequence[str], None] = '0f89be1d960c'
+down_revision: Union[str, Sequence[str], None] = '260e4e269d41'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
