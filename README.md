@@ -49,15 +49,13 @@ Since the app is running in Docker, you should run migration commands **inside t
 **Apply Migrations (Upgrade DB):**
 
 ```bash
-docker compose exec run-wise-app-1 uv run alembic upgrade head
-
+docker-compose exec app uv run alembic upgrade head
 ```
 
 **Create a New Migration (after changing models):**
 
 ```bash
-docker compose exec run-wise-app-1 uv run alembic revision --autogenerate -m "describe_your_changes"
-
+docker-compose exec app uv run alembic revision --autogenerate -m "describe_your_changes"
 ```
 
 *Note: `app` is the service name defined in `docker-compose.yml`.*
